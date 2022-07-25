@@ -1,0 +1,83 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Player : MonoBehaviour
+{
+    private Animator anim;
+    public float moveSpeed = 3f;
+    public float stopSpeed = 20f;
+    
+    public float roation = 5f;
+    private AudioSource footMusic;
+    public bool onKey = false; //钥匙
+    private void Awake()
+    {
+        anim = this.GetComponent<Animator>();
+        
+        footMusic = GetComponent<AudioSource>();
+    }
+
+    void Update()
+    {
+        float h = Input.GetAxis("Horizontal"); 
+        float v = Input.GetAxis("Vertical");
+
+
+        if (Input.GetKey(KeyCode.LeftShift)) //按下shift进入静步模式
+        {
+            anim.SetBool("Sneak", true);
+
+        }
+        else
+        {
+            anim.SetBool("Sneak", false);
+        }
+
+      
+
+        if (Mathf.Abs(h) !=0 || Mathf.Abs(v) !=0) //判断是否移动
+        {
+            float newSpeed = Mathf.Lerp(anim.GetFloat("Speed"), 5.6f, moveSpeed * Time.deltaTime);// 插值运算，改变状态器的值，慢慢加速
+            anim.SetFloat("Speed", newSpeed);
+
+            Vector3 targetDir = new Vector3(h, 0, v); //获得目标位置
+            Quaternion newRoate = Quaternion.LookRotation(targetDir, Vector3.up);//带有方向和度数的旋转参数
+            transform.rotation = Quaternion.Lerp(transform.rotation, newRoate, roation * Time.deltaTime);//旋转插值
+        }
+        else { anim.SetFloat("Speed", 0); }
+
+
+        //控制脚步声
+
+        if (anim.GetCurrentAnimatorStateInfo(0).IsName("Comotoin")) //返回动画器第0层 状态是否是  Comotoin 
+        {
+            PlayFootMusci();
+        }
+        else
+        {
+            StopFootMusci();
+        }
+    }
+
+
+    public void PlayFootMusci()
+    {
+        if (!footMusic.isPlaying)
+        {
+            footMusic.Play();
+        }
+    }
+    public void StopFootMusci()
+    {
+        if (footMusic.isPlaying)
+        {
+            footMusic.Stop();
+        }
+    }
+}
+
+
+
+
+
