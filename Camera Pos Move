@@ -1,0 +1,63 @@
+public class Camera : MonoBehaviour
+{
+    Vector3 offest; 
+    Transform player;  
+    public float speed=0.5f;
+
+    private void Awake()
+    {
+        player = GameObject.FindGameObjectWithTag("Player").transform;  //获取角色位置
+        offest = transform.position - player.position;  //获取偏移量
+        offest = new Vector3(0, offest.y, offest.z);
+    }
+    /// <summary>
+    ///                           Camera 预设5个点      beginPos, pos1, pos2, pos3, endPos（头顶）      
+    ///                           
+    ///                           利用 Raycast  检测Plaer 是否被遮挡 
+    ///                           
+    ///                           遍历没有遮挡的点，位置赋值 给Camera 
+    ///                           
+    ///                            Camera 平滑切换 视角
+    /// </summary>
+    void Update()
+    {   
+        // Player 与 Camera 直接设置5个 点
+
+        Vector3 beginPos = player.position + offest;
+        Vector3 endPos = player.position + offest.magnitude * Vector3.up; //得到一个向上的长度和角度 
+        Vector3 pos1 = Vector3.Lerp(beginPos,endPos,0.25f); 
+        Vector3 pos2 = Vector3.Lerp(beginPos, endPos, 0.5f);
+        Vector3 pos3 = Vector3.Lerp(beginPos, endPos, 0.75f);
+
+        Vector3[] posArray = new Vector3[] { beginPos, pos1, pos2, pos3, endPos };
+        Vector3 tagerPos = posArray[0];
+
+        //                                遍历没有遮挡的点
+        for (int i = 0; i<posArray.Length; i++)
+        {
+
+            //                             ray射线检测遮挡
+            RaycastHit hitinfo;
+            if (Physics.Raycast(posArray[i], player.position - posArray[i],out hitinfo)) 
+            {
+                if (hitinfo.collider.tag != "Player")
+                {
+                    continue;
+                }
+                else
+                {
+                    tagerPos = posArray[i];
+                    break;
+                }
+            }
+            else
+            {
+               tagerPos = posArray[i];
+                break;
+            }
+        }
+
+        transform.position = Vector3.Lerp(transform.position, tagerPos, Time.deltaTime * speed);  //Camera平滑移动
+        transform.LookAt(player.position); //z轴朝向player
+    }
+}
