@@ -1,0 +1,46 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+
+public class PlayerHealth : MonoBehaviour
+{
+    Text leveText;
+
+    Image sliderHealth;
+
+    Image sliderExp;
+
+    private void OnEnable()
+    {
+ 
+    }
+    private void Awake()
+    {
+        leveText = transform.GetChild(2).GetComponent<Text>();
+        sliderHealth = transform.GetChild(0).GetChild(0).GetComponent<Image>();
+        sliderExp = transform.GetChild(1).GetChild(0).GetComponent<Image>();
+    }
+    private void Update()
+    {
+        if (GameManage.Instance.PlayerStats != null)
+        {
+            leveText.text = "等级： " + GameManage.Instance.PlayerStats.charactersDate.currentLevel.ToString("00");
+            UpdateExpSlider();
+            UpdateHealthSlider();
+        }
+
+    }
+
+    void UpdateHealthSlider()  //生命值血条
+    {
+        float healthSlider =(float) GameManage.Instance.PlayerStats.CurrentHealth / GameManage.Instance.PlayerStats.MaxHealth;
+        sliderHealth.fillAmount = healthSlider;
+    }
+    void UpdateExpSlider() //经验值血条
+    {
+        float expHealth = (float)GameManage.Instance.PlayerStats.charactersDate.currentExp / GameManage.Instance.PlayerStats.charactersDate.baseExp;
+        sliderExp.fillAmount = expHealth;
+    }
+}
